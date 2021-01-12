@@ -1,0 +1,85 @@
+//联通话费查询小组件
+//作者：kzddck
+//微信公众号：kzddck
+//更新时间2020.10.26
+//支持自动签到
+
+//修改为你的手机号
+const Tel = '填写你的手机号'
+//修改为你的cookie，cookie获取方法，需安装Stream在联通客户端中进行抓包，不会操作请关注微信公众号：kzddck，回复201027获取使用方法
+const Cookie = '填写cookie'
+
+let data = await getData()
+let widget = await createWidget(data)
+if (!config.runsInWidget) {
+  await widget.presentLarge()
+}
+Script.setWidget(widget)
+Script.complete()
+async function createWidget(data) {
+  let title = "中国联通"
+  let w = new ListWidget()
+  bg = new LinearGradient()
+  bg.locations = [0,1]
+  bg.colors = [  
+  new Color("#6fa8dc"),
+  new Color("#a4c2f4")
+]
+
+  w.backgroundGradient = bg
+  w.addSpacer(8)
+// 显示图标和标题
+ let titleStack = w.addStack()
+  titleStack.addSpacer(4)
+  let titleElement = titleStack.addText(title)
+  titleElement.textColor = Color.white()
+  titleElement.font = Font.mediumSystemFont(15)
+  w.addSpacer(8)
+// 流量
+  let liuliang = data.data.dataList[0];
+  let date1 = w.addText((liuliang.remainTitle)+':'+(liuliang.number)+(liuliang.unit))
+  date1.font = Font.semiboldSystemFont(12)
+  date1.textColor = Color.white()
+  w.addSpacer(8)
+// 话费
+  let huafei = data.data.dataList[1]; 
+  let date2 = w.addText((huafei.remainTitle)+':'+(huafei.number)+(huafei.unit))
+  date2.font = Font.heavySystemFont(12)
+  date2.textColor =Color.white()
+  w.addSpacer(8)
+
+// 语音
+  let yuyin = data.data.dataList[2]; 
+  let date3 = w.addText((yuyin.remainTitle)+':'+(yuyin.number)+(yuyin.unit))
+  date3.font = Font.heavySystemFont(12)
+  date3.textColor =Color.white()
+  w.addSpacer(8)
+
+// 积分
+  let jifen = data.data.dataList[3];
+  let date4 = w.addText((jifen.remainTitle)+':'+(jifen.number)+(jifen.unit))
+  date4.font = Font.heavySystemFont(12)
+  date4.textColor =Color.white()
+  w.addSpacer(8)
+// 签到
+  let gx = '更新'+data.flush_date_time;
+  let body = w.addText(gx)
+  body.font = Font.mediumRoundedSystemFont(9)
+  body.textColor = Color.white()
+  w.addSpacer(15)
+  return w
+}
+async function getData() {
+  var url= 'https://m.client.10010.com/mobileService/home/queryUserInfoSeven.htm?showType=3&version=iphone_c@7.0600&desmobiel='+Tel;
+  var url1 = 'https://act.10010.com/SigninApp/signin/daySign'
+  var req = new Request(url)
+  
+  req.headers = {'cookie': Cookie }
+  console.log(req)
+  var data = await req.loadJSON()
+  console.log(data)
+  var req1 = new Request(url1);
+  req1.headers = {'cookie': Cookie }
+  var data1 = await req1.loadJSON();
+  return data
+}
